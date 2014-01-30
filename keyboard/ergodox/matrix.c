@@ -160,19 +160,21 @@ uint8_t matrix_scan(void)
 
     mcp23018_status = ergodox_left_leds_update();
 #endif
-#ifdef KEYMAP_NORMAN
+#ifdef KEYMAP_CJNE
     uint8_t layer = biton32(layer_state);
-ergodox_board_led_off();
+    ergodox_board_led_off();
     if (layer == 1) {
-ergodox_board_led_on();
+        ergodox_board_led_on();
         ergodox_left_led_1_on();
         ergodox_left_led_2_off();
         ergodox_left_led_3_off();
     } else if (layer == 2) {
+        ergodox_board_led_on();
         ergodox_left_led_1_off();
         ergodox_left_led_2_on();
         ergodox_left_led_3_off();
     } else if (layer == 3) {
+        ergodox_board_led_on();
         ergodox_left_led_1_off();
         ergodox_left_led_2_off();
         ergodox_left_led_3_on();

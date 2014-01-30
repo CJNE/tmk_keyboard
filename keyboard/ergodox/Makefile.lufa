@@ -137,4 +137,7 @@ micro: all
 cub: OPT_DEFS += -DKEYMAP_CUB
 cub: all
 
+cjne: OPT_DEFS += -DKEYMAP_CJNE
+cjne: all
+
 
