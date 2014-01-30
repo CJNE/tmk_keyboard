@@ -160,6 +160,49 @@ uint8_t matrix_scan(void)
 
     mcp23018_status = ergodox_left_leds_update();
 #endif
+#ifdef KEYMAP_NORMAN
+    uint8_t layer = biton32(layer_state);
+ergodox_board_led_off();
+    if (layer == 1) {
+ergodox_board_led_on();
+        ergodox_left_led_1_on();
+        ergodox_left_led_2_off();
+        ergodox_left_led_3_off();
+    } else if (layer == 2) {
+        ergodox_left_led_1_off();
+        ergodox_left_led_2_on();
+        ergodox_left_led_3_off();
+    } else if (layer == 3) {
+        ergodox_left_led_1_off();
+        ergodox_left_led_2_off();
+        ergodox_left_led_3_on();
+    } else if (layer == 4) {
+        ergodox_left_led_1_on();
+        ergodox_left_led_2_off();
+        ergodox_left_led_3_on();
+    } else if (layer == 5) {
+        ergodox_left_led_1_on();
+        ergodox_left_led_2_on();
+        ergodox_left_led_3_off();
+    } else if (layer == 6) {
+        ergodox_left_led_1_off();
+        ergodox_left_led_2_on();
+        ergodox_left_led_3_on();
+    } else if (layer == 7) {
+        ergodox_left_led_1_on();
+        ergodox_left_led_2_on();
+        ergodox_left_led_3_on();
+    } else {
+        ergodox_left_led_1_off();
+        ergodox_left_led_2_off();
+        ergodox_left_led_3_off();
+    }
+
+    // not actually needed because we already calling init_mcp23018() in next line
+    // ergodox_left_leds_update();
+    mcp23018_status = ergodox_left_leds_update();
+
+#endif
 
     for (uint8_t i = 0; i < MATRIX_ROWS; i++) {
         select_row(i);
