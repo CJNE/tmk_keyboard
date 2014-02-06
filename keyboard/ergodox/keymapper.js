@@ -5,11 +5,10 @@ var screen = blessed.screen();
 
 // Create a box perfectly centered horizontally and vertically.
 var left = blessed.box({
-  top: 'center',
-  left: '2%',
-  width: '42%',
-  height: '50%',
-  content: 'Left keyboard',
+  top: '0',
+  left: '0',
+  width: '50%',
+  height: '70%',
   tags: true,
   border: {
     type: 'line'
@@ -20,18 +19,13 @@ var left = blessed.box({
     border: {
       fg: '#f0f0f0'
     },
-    hover: {
-      bg: 'green'
-    }
   }
 });
 var right = blessed.box({
-  top: 'center',
-  left: '52%',
-  width: '42%',
-  height: '50%',
-  content: 'Right keyboard',
-  tags: true,
+  top: '0',
+  left: '50%',
+  width: '50%',
+  height: '70%',
   border: {
     type: 'line'
   },
@@ -41,11 +35,43 @@ var right = blessed.box({
     border: {
       fg: '#f0f0f0'
     },
-    hover: {
-      bg: 'green'
+  }
+});
+var form = blessed.form({
+  top: '72%',
+  left: '0%',
+  width: '80%',
+  height: '20%',
+  style: {
+    fg: 'white',
+    bg: 'blue',
+    border: {
+      fg: '#f0f0f0'
+    }
+  },
+  keys: 'vi'
+});
+var infoBox = blessed.box({
+  top: '72%',
+  left: '80%',
+  width: '20%',
+  style: {
+    fg: 'red',
+    bg: 'black',
+    border: {
+      fg: '#f0f0f0'
     }
   }
 });
+
+function info(msg) {
+  infoBox.shiftLine(1);
+  infoBox.pushLine(msg);
+  screen.render();
+}
+
+
+
 //38 keys
 var Key = function(index) {
   var self = this;
@@ -82,19 +108,28 @@ var Key = function(index) {
         TRNS,RSFT,RCTL
     ),
     */
+  self.draw = function() {
+    if(inputSelectKey) box.setContent(self.index+"");
+    else box.setContent(self.getMapping(selectedLayer));
+    if(selectedKey == self.index) box.style.bg = 'red';
+    else box.style.bg = 'green';
+  };
   self.getBox = function() {
     if(box == null) {
       var pos = self.getPos();
-      console.log("Key "+self.index+ " x: "+parseInt(pos.x)+" y: "+parseInt(pos.y)+" W:H "+pos.w+":"+pos.h);
       box = blessed.box({
         top: (100 / 8 * pos.y)+"%",
         left: (100 / 8 * pos.x)+"%",
         width: (100 / 8 * pos.w)+'%',
         height: (100 / 8 * pos.h)+'%',
-        content: " K:"+(i - (self.isLeft() ? 0 : 38)),
+        content: "",
+        align: 'center',
+        //valign: 'middle',
         tags: true,
         border: {
-          type: 'line'
+          type: 'line',
+          bg: 'pink',
+          fg: 'pink'
         },
         style: {
           fg: 'white',
@@ -103,11 +138,19 @@ var Key = function(index) {
             fg: '#f0f0f0'
           },
           hover: {
-            bg: 'pink'
+            bg: 'red'
           }
         }
       });
     }
+    box.on('mouseover', function() {
+      info("Hover on "+self.index);
+    });
+    box.on('click', function() {
+      selectedKey = self.index;
+      redraw();
+      if(inputSelectKey !== null) requestKey();
+    });
     return box;
   }
   self.getPos = function() {
@@ -115,36 +158,36 @@ var Key = function(index) {
     var x = 0, y = 0, w = 1, h= 1;
     switch(offsetIndex) {
       case 0: w = self.isLeft() ? 2 : 1; break;
-      case 6: x = 6; w = self.isLeft() ? 1 : 2; break;
+      case 6: x = self.isLeft() ? 7 : 6; w = self.isLeft() ? 1 : 2; break;
       case 7: y = 1; h = self.isLeft() ? 1 : 2; w = self.isLeft() ? 2 : 1; break;
-      case 13: x = 6; y = 1; h = self.isLeft() ? 2 : 1; w = self.isLeft() ? 1 : 2; break;
+      case 13: x = self.isLeft() ? 7 : 6; y = 1; h = self.isLeft() ? 2 : 1; w = self.isLeft() ? 1 : 2; break;
       case 14: x = self.isLeft() ? 0 : 1; y = 2; w = self.isLeft() ? 2 : 1; break;
-      case 19: x = self.isLeft() ? 1 : 0; y = 2; w = self.isLeft() ? 2 : 1; break;
+      case 19: x = self.isLeft() ? 6 : 6; y = 2; w = self.isLeft() ? 1 : 2; break;
       case 20: y = 3; h = self.isLeft() ? 1 : 2; w = self.isLeft() ? 2 : 1; break;
-      case 26: y = 3; h = self.isLeft() ? 2 : 1; w = self.isLeft() ? 1 : 2; break;
-      case 32: y = 5; x = self.isLeft() ? 5 : 0; break;
-      case 33: y = 5; x = self.isLeft() ? 6 : 1; break;
-      case 34: y = 6; x = self.isLeft() ? 6 : 0; break;
-      case 35: y = self.isLeft() ? 6 : 7; h = self.isLeft() ? 2 : 1; x = self.isLeft() ? 4 : 0; break;
-      case 36: y = 6; h = 2; x = self.isLeft() ? 5 : 1; break;
-      case 37: y = self.isLeft() ? 7 : 6; h = self.isLeft() ? 1 : 2; x = self.isLeft() ? 6 : 2; break;
+      case 26: x = self.isLeft() ? 7 : 6; y = 3; h = self.isLeft() ? 2 : 1; w = self.isLeft() ? 1 : 2; break;
+      case 32: y = 5; x = self.isLeft() ? 5 : 1; break;
+      case 33: y = 5; x = self.isLeft() ? 6 : 2; break;
+      case 34: y = 6; x = self.isLeft() ? 6 : 1; break;
+      case 35: y = self.isLeft() ? 6 : 7; h = self.isLeft() ? 2 : 1; x = self.isLeft() ? 4 : 1; break;
+      case 36: y = 6; h = 2; x = self.isLeft() ? 5 : 2; break;
+      case 37: y = self.isLeft() ? 7 : 6; h = self.isLeft() ? 1 : 2; x = self.isLeft() ? 6 : 3; break;
       default: {
-        if(offsetIndex < 7) x = offsetIndex;
+        if(offsetIndex < 7) x = self.isLeft() ? offsetIndex + 1 : offsetIndex;
         else if(offsetIndex < 14) { 
           y = 1;
-          x = offsetIndex - 7;
+          x = offsetIndex - (self.isLeft() ? 6 : 7);
         }
         else if(offsetIndex < 20) {
           y = 2; 
-          x = offsetIndex - 14;
+          x = offsetIndex - (self.isLeft() ? 13 : 13);
         }
         else if(offsetIndex < 26) {
           y = 3;
-          x = offsetIndex - 20;
+          x = offsetIndex - (self.isLeft() ? 19 : 20);
         } 
         else {
           y = 4;
-          x = offsetIndex - 26;
+          x = offsetIndex - (self.isLeft() ? 26 : 25);
         } 
         break;
       }
@@ -158,17 +201,69 @@ var keys = [];
 var keybox;
 var pos;
 var key;
-for(i = 0; i < 72; i++) {
+var selectedLayer = 0;
+var inputSelectKey = null;
+var selectedKey = -1;
+for(i = 0; i < 76; i++) {
   key = new Key(i);
   keys.push(key);
   if(key.isLeft()) left.append(key.getBox());
   else right.append(key.getBox());
 }
 
-
+function requestKey() {
+  if(inputSelectKey !== null) {
+    form.remove(inputSelectKey);
+    isSelectingKey = false;
+    inputSelectKey = null;
+    redraw();
+    return;
+  }
+  info("Select key: ");
+  // Select key input
+  inputSelectKey = blessed.textbox({
+    content: "Input key number, or click a key: ",
+    width: '40%',
+    height: '20%',
+    style: {
+      fg: 'white',
+      bg: 'magenta',
+      border: {
+        fg: '#f0f0f0'
+      },
+    },
+    border: {
+      style: 'line'
+    },
+    top: '50%',
+    left: '50%'
+  });
+  redraw();
+  form.append(inputSelectKey);
+  inputSelectKey.focus();
+  inputSelectKey.readInput(function(ch,text) {
+    info("Got "+text);
+    selectedKey = parseInt(text);
+    requestKey();
+  });
+}
 // Append our box to the screen.
 screen.append(left);
 screen.append(right);
+screen.append(form);
+screen.append(infoBox);
+form.focus();
+
+// If box is focused, handle `enter`/`return` and give us some more content.
+screen.key('k', function(ch, key) {
+  requestKey();
+});
+function redraw() {
+  for(i = 0; i < 76; i++) {
+    keys[i].draw();
+  }
+  screen.render();
+}
 
 // If our box is clicked, change the content.
 left.on('click', function(data) {
